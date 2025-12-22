@@ -1,0 +1,41 @@
+name: Analyze code quality
+
+on:
+  workflow_call:
+    inputs:
+      SONAR_PROJECT_KEY:
+        required: true
+        type: string
+      SONAR_SOURCES:
+        required: true
+        type: string
+      SONAR_HOST_URL:
+        required: true
+        type: string
+    secrets:
+      SONAR_TOKEN:
+        required: true
+jobs:
+  sonar_generic:
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ inputs.SONAR_PROJECT_KEY }}
+      SONAR_SOURCES: ${{ inputs.SONAR_SOURCES }}
+      SONAR_EXCLUSIONS: "**/node_modules/**/*"
+      SONAR_PROJECT_VERSION: ${{ github.sha }}
+      SONAR_HOST_URL: ${{ inputs.SONAR_HOST_URL }}
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+    - uses: sonarsource/sonarqube-scan-action@v7
+      with:
+        args: >
+          -Dsonar.verbose=true
+          -Dsonar.projectKey=${{ inputs.SONAR_PROJECT_KEY }}
+          -Dsonar.sources=${{ inputs.SONAR_SOURCES }}
+          -Dsonar.exclusions=${{ env.SONAR_EXCLUSIONS }}
+          -Dsonar.projectVersion=${{ env.SONAR_PROJECT_VERSION }}
+          -Dsonar.sourceEncoding=UTF-8
+          -Dsonar.qualitygate.wait=true
