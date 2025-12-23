@@ -15,6 +15,11 @@ on:
     secrets:
       SONAR_TOKEN:
         required: true
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
   sonar_generic:
     runs-on: ubuntu-latest
